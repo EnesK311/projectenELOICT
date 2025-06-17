@@ -1,0 +1,267 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  GCP_CREDENTIALS_FILE: "/root/.gcp/keyfile.json"  # Path to your GCP credentials file
+  DOTNET_VERSION: "8.0"
+  BUILD_DIR: "build"
+  DOCKER_HOST: tcp://docker:2375/  # Use the Docker daemon inside the DinD container
+  DOCKER_DRIVER: overlay2  # Set the Docker storage driver
+  CLOUD_RUN_SERVICE_NAME: "fconnectapi"
+
+before_script:
+  # Ensure .gcp directory exists for credentials
+  - mkdir -p /root/.gcp
+
+stages:
+  - build
+  - test
+  - push-image
+  - deploy
+  - security
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .nuget/packages/
+
+build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}
+  script:
+    - echo "Building the project..."
+    - dotnet restore FacilityConnect/FacilityConnect.csproj  # Adjust based on the actual .csproj filename
+    - dotnet build FacilityConnect/FacilityConnect.csproj -c Release --no-restore
+  artifacts:
+    paths:
+      - $BUILD_DIR/bin/Release/  # Adjust based on the actual output path
+    expire_in: 1 week
+  only:
+    - dev
+    - staging
+    - production
+
+test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}
+  before_script:
+    - dotnet tool install --global dotnet-reportgenerator-globaltool
+    - export PATH="$PATH:/root/.dotnet/tools"
+    - apt-get update && apt-get install -y python3 python3-pip
+    - cd fconnect.tests/
+    - dotnet add package JunitXml.TestLogger
+    - cd -
+  script:
+    - echo "Running tests..."
+    - mkdir -p TestResults
+    - mkdir -p TestResults/coverage-report                       # Ensure the directory exists
+    - dotnet test fconnect.tests/fconnect.tests.csproj --settings coverage.runsettings --logger "junit;MethodFormat=Class;FailureBodyFormat=Verbose" --collect:"XPlat Code Coverage"
+    - find TestResults -name "coverage.cobertura.xml"  # Locate the coverage file
+    - reportgenerator "-reports:/builds/ikdoeict/vakken/opo_agile_team_project/projecten/2425/2425_atp_duurzaamfm/backend/cense-api/fconnect.tests/TestResults/*/coverage.cobertura.xml" "-targetdir:TestResults/coverage-report" -reporttypes:Cobertura
+
+    # Run the Python script to calculate the average line-rate for Controller classes
+    - python3 calculate_line_rate.py  # This will run the script you created
+  dependencies:
+    - build
+  artifacts:
+    paths:
+      - ./**/TestResults.xml
+      - TestResults/coverage-report/Cobertura.xml
+      - report.txt  # Save the report file with coverage information
+    when: always
+    expire_in: 1 week
+    reports:
+      junit:
+        - ./**/TestResults.xml
+  coverage: '/##vso\[task\.setvariable variable=average_line_rate\](\d+\.\d+)/'  # Parse the coverage from the `report.txt` file
+  only:
+    - dev
+    - staging
+    - production
+
+push_image_dev:
+  stage: push-image
+  image: google/cloud-sdk:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: "tcp://docker:2375"
+  before_script:
+    - mkdir -p /root/.gcp
+    - echo "$GCP_CREDENTIALS_JSON" | base64 -d > $GCP_CREDENTIALS_FILE
+    - chmod 600 $GCP_CREDENTIALS_FILE
+    - gcloud auth activate-service-account --key-file=$GCP_CREDENTIALS_FILE
+    - gcloud config set project $GOOGLE_CLOUD_PROJECT
+    - gcloud auth configure-docker
+  script:
+    - echo "Building the Docker image for development..."
+    - docker build -t gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-dev:dev-$CI_COMMIT_SHA -f FacilityConnect/Dockerfile .
+    - echo "Pushing the Docker image to GCR..."
+    - docker push gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-dev:dev-$CI_COMMIT_SHA
+    - rm -f $GCP_CREDENTIALS_FILE  # Remove credentials file for security
+  environment:
+    name: dev
+    url: https://dev-fconnectapi.271540053456.europe-west1.run.app
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+
+push_image_staging:
+  stage: push-image
+  image: google/cloud-sdk:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: "tcp://docker:2375"
+  before_script:
+    - mkdir -p /root/.gcp
+    - echo "$GCP_CREDENTIALS_JSON" | base64 -d > $GCP_CREDENTIALS_FILE
+    - chmod 600 $GCP_CREDENTIALS_FILE
+    - gcloud auth activate-service-account --key-file=$GCP_CREDENTIALS_FILE
+    - gcloud config set project $GOOGLE_CLOUD_PROJECT
+    - gcloud auth configure-docker
+  script:
+    - echo "Building the Docker image for staging..."
+    - docker build -t gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-staging:staging-$CI_COMMIT_SHA -f FacilityConnect/Dockerfile .
+    - echo "Pushing the Docker image to GCR..."
+    - docker push gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-staging:staging-$CI_COMMIT_SHA
+    - rm -f $GCP_CREDENTIALS_FILE  # Remove credentials file for security
+  environment:
+    name: staging
+    url: https://staging-fconnectapi.271540053456.europe-west1.run.app
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+
+push_image_production:
+  stage: push-image
+  image: google/cloud-sdk:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: "tcp://docker:2375"
+  before_script:
+    - mkdir -p /root/.gcp
+    - echo "$GCP_CREDENTIALS_JSON" | base64 -d > $GCP_CREDENTIALS_FILE
+    - chmod 600 $GCP_CREDENTIALS_FILE
+    - gcloud auth activate-service-account --key-file=$GCP_CREDENTIALS_FILE
+    - gcloud config set project $GOOGLE_CLOUD_PROJECT
+    - gcloud auth configure-docker
+  script:
+    - echo "Building the Docker image for production..."
+    - docker build -t gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME:prod-$CI_COMMIT_SHA -f FacilityConnect/Dockerfile .
+    - echo "Pushing the Docker image to GCR..."
+    - docker push gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME:prod-$CI_COMMIT_SHA
+    - rm -f $GCP_CREDENTIALS_FILE  # Remove credentials file for security
+  environment:
+    name: production
+    url: https://prod-fconnectapi.271540053456.europe-west1.run.app
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "production"'
+
+deploy_dev:
+  stage: deploy
+  image: google/cloud-sdk:latest
+  variables:
+    REGION: europe-west1
+  before_script:
+    - mkdir -p /root/.gcp
+    - echo "$GCP_CREDENTIALS_JSON" | base64 -d > $GCP_CREDENTIALS_FILE
+    - chmod 600 $GCP_CREDENTIALS_FILE
+    - gcloud auth activate-service-account --key-file=$GCP_CREDENTIALS_FILE
+    - gcloud config set project $GOOGLE_CLOUD_PROJECT
+  script:
+    - echo "Deploying to Cloud Run (dev)..."
+    - gcloud run deploy $CLOUD_RUN_SERVICE_NAME-dev --image gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-dev:dev-$CI_COMMIT_SHA --platform managed --region $REGION --allow-unauthenticated --set-env-vars CLOUDINARY_URL=$CLOUDINARY_URL,MAPBOX_API_KEY=$MAPBOX_API_KEY,SENDGRID_API_KEY=$SENDGRID_API_KEY,CONNECTION_STRING="Server=104.155.11.9;Database=FacilityConnect;User Id=root;Password=Connect;",EMAIL_URL=https://facilityconnect-dev-271540053456.europe-west1.run.app
+
+    - rm -f $GCP_CREDENTIALS_FILE  # Remove credentials file for security
+  environment:
+    name: dev
+    url: https://dev-fconnectapi.271540053456.europe-west1.run.app
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+
+deploy_staging:
+  stage: deploy
+  image: google/cloud-sdk:latest
+  variables:
+    REGION: europe-west1
+  before_script:
+    - mkdir -p /root/.gcp
+    - echo "$GCP_CREDENTIALS_JSON" | base64 -d > $GCP_CREDENTIALS_FILE
+    - chmod 600 $GCP_CREDENTIALS_FILE
+    - gcloud auth activate-service-account --key-file=$GCP_CREDENTIALS_FILE
+    - gcloud config set project $GOOGLE_CLOUD_PROJECT
+  script:
+    - echo "Deploying to Cloud Run (staging)..."
+    - gcloud run deploy $CLOUD_RUN_SERVICE_NAME-staging --image gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-staging:staging-$CI_COMMIT_SHA --platform managed --region $REGION --allow-unauthenticated --set-env-vars CLOUDINARY_URL=$CLOUDINARY_URL,MAPBOX_API_KEY=$MAPBOX_API_KEY,SENDGRID_API_KEY=$SENDGRID_API_KEY,CONNECTION_STRING="Server=104.155.11.9;Database=FacilityConnect;User Id=root;Password=Connect;",EMAIL_URL=https://facilityconnect-staging-271540053456.europe-west1.run.app
+    - rm -f $GCP_CREDENTIALS_FILE  # Remove credentials file for security
+  environment:
+    name: staging
+    url: https://staging-fconnectapi.271540053456.europe-west1.run.app
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+
+deploy_production:
+  stage: deploy
+  image: google/cloud-sdk:latest
+  variables:
+    REGION: europe-west1
+  before_script:
+    - mkdir -p /root/.gcp
+    - echo "$GCP_CREDENTIALS_JSON" | base64 -d > $GCP_CREDENTIALS_FILE
+    - chmod 600 $GCP_CREDENTIALS_FILE
+    - gcloud auth activate-service-account --key-file=$GCP_CREDENTIALS_FILE
+    - gcloud config set project $GOOGLE_CLOUD_PROJECT
+  script:
+    - echo "Deploying to Cloud Run (production)..."
+    - gcloud run deploy $CLOUD_RUN_SERVICE_NAME-prod --image gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-prod:prod-$CI_COMMIT_SHA --platform managed --region $REGION --allow-unauthenticated --set-env-vars CLOUDINARY_URL=$CLOUDINARY_URL,MAPBOX_API_KEY=$MAPBOX_API_KEY,SENDGRID_API_KEY=$SENDGRID_API_KEY,CONNECTION_STRING="Server=104.155.11.9;Database=FacilityConnect;User Id=root;Password=Connect;",EMAIL_URL=https://facilityconnect-prod-271540053456.europe-west1.run.app
+    - rm -f $GCP_CREDENTIALS_FILE  # Remove credentials file for security
+  environment:
+    name: production
+    url: https://prod-fconnectapi.271540053456.europe-west1.run.app
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "production"'
+
+container_checking:
+  stage: security
+  image: google/cloud-sdk:latest
+  before_script:
+    - mkdir -p /root/.gcp
+    # Authenticate with Google Cloud
+    - echo "$GCP_CREDENTIALS_JSON" | base64 -d > $GCP_CREDENTIALS_FILE  # Ensure the credentials file is created
+    - chmod 600 $GCP_CREDENTIALS_FILE  # Set permissions for the credentials file
+    - gcloud auth activate-service-account --key-file=$GCP_CREDENTIALS_FILE  # Authenticate with GCP
+    - gcloud config set project $GOOGLE_CLOUD_PROJECT  # Set GCP project
+    - gcloud auth configure-docker gcr.io  # Authenticate Docker with GCR
+    - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.18.1
+
+  script:
+    - |
+      echo "Scanning container images for vulnerabilities..."
+      for env in dev staging production; do
+        if [ "$env" == "dev" ]; then
+          SERVICE_NAME="$CLOUD_RUN_SERVICE_NAME-dev"
+          TAG="dev-$CI_COMMIT_SHA"
+        elif [ "$env" == "staging" ]; then
+          SERVICE_NAME="$CLOUD_RUN_SERVICE_NAME-staging"
+          TAG="staging-$CI_COMMIT_SHA"
+        else
+          SERVICE_NAME="$CLOUD_RUN_SERVICE_NAME"
+          TAG="prod-$CI_COMMIT_SHA"
+        fi
+        IMAGE_URL="gcr.io/$GOOGLE_CLOUD_PROJECT/$SERVICE_NAME:$TAG"
+        echo "Scanning image: $IMAGE_URL"
+        trivy image --no-progress --severity HIGH,CRITICAL $IMAGE_URL || echo "Scan failed for $IMAGE_URL"
+      done
+  allow_failure: true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+    - if: '$CI_COMMIT_BRANCH == "production"'

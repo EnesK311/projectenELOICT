@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
+
+:root {
+  --black: #181716;
+  --white: #ffffff;
+  --bg: var(--white);
+  --text: var(--black);
+  --gray: #b5b5b5;
+
+  --dark-blue: #1f416b;
+  --dark-blue-5: rgba(31, 65, 107, 0.5);
+  --dark-blue-05: rgba(31, 65, 107, 0.15);
+
+  --dark-blue-25: rgba(31, 65, 107, 0.25);
+  --dark-blue-7: rgba(31, 65, 107, 0.7);
+
+  --blue: #00639c;
+  --blue-5: rgba(0, 99, 156, 0.5);
+  --blue-25: rgba(0, 99, 156, 0.25);
+
+  --light-blue: #d3ddf2;
+  --light-blue-5: #d3ddf250;
+  --light-blue-25: #d3ddf250;
+
+  --green: #3cb497;
+  --green-5: rgba(60, 180, 151, 0.5);
+  --green-25: rgba(60, 180, 152, 0.25);
+  --green-7: rgba(60, 180, 151, 0.7);
+
+  --red: #e73f16;
+  --red-4: rgba(231, 63, 22, 0.4);
+  --red-5: rgba(231, 63, 22, 0.5);
+  --red-7: rgba(231, 63, 22, 0.7);
+
+  --yellow-25: #fdb71376;
+  --yellow: #fdb713;
+
+  --label: #f5f5f5;
+
+  --source-sans-pro: 'Source Sans 3', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --calibri: 'Calibri', 'Source Sans 3', 'Helvetica Neue', sans-serif;
+
+  --hc-black: #000000;
+  --hc-white: #ffffff;
+  --hc-bg: var(--hc-white);
+  --hc-text: var(--hc-black);
+  --hc-gray: #808080;
+
+  --hc-dark-blue: #00274d;
+  --hc-dark-blue-5: rgba(0, 39, 77, 0.5);
+  --hc-dark-blue-05: rgba(0, 39, 77, 0.15);
+
+  --hc-dark-blue-25: rgba(0, 39, 77, 0.25);
+  --hc-dark-blue-7: rgba(0, 39, 77, 0.7);
+
+  --hc-blue: #0057d9;
+  --hc-blue-5: rgba(0, 87, 217, 0.5);
+  --hc-blue-25: rgba(0, 87, 217, 0.25);
+
+  --hc-light-blue: #e3f2ff;
+  --hc-light-blue-5: rgba(227, 242, 255, 0.5);
+  --hc-light-blue-25: rgba(227, 242, 255, 0.25);
+
+  --hc-green: #008000;
+  --hc-green-5: rgba(0, 128, 0, 0.5);
+  --hc-green-25: rgba(0, 128, 0, 0.25);
+  --hc-green-7: rgba(0, 128, 0, 0.7);
+
+  --hc-red: #d00000;
+  --hc-red-4: rgba(208, 0, 0, 0.4);
+  --hc-red-5: rgba(208, 0, 0, 0.5);
+  --hc-red-7: rgba(208, 0, 0, 0.7);
+
+  --hc-yellow-25: #ffc800;
+  --hc-yellow: #ffdd00;
+
+  --hc-label: #000000;
+
+  /* default */
+  --default-black: #181716;
+  --default-white: #ffffff;
+  --default-bg: var(--white);
+  --default-text: var(--black);
+  --default-gray: #b5b5b5;
+
+  --default-dark-blue: #1f416b;
+  --default-dark-blue-5: rgba(31, 65, 107, 0.5);
+  --default-dark-blue-05: rgba(31, 65, 107, 0.15);
+
+  --default-dark-blue-25: rgba(31, 65, 107, 0.25);
+  --default-dark-blue-7: rgba(31, 65, 107, 0.7);
+
+  --default-blue: #00639c;
+  --default-blue-5: rgba(0, 99, 156, 0.5);
+  --default-blue-25: rgba(0, 99, 156, 0.25);
+
+  --default-light-blue: #d3ddf2;
+  --default-light-blue-5: #d3ddf250;
+  --default-light-blue-25: #d3ddf250;
+
+  --default-green: #3cb497;
+  --default-green-5: rgba(60, 180, 151, 0.5);
+  --default-green-25: rgba(60, 180, 152, 0.25);
+  --default-green-7: rgba(60, 180, 151, 0.7);
+
+  --default-red: #e73f16;
+  --default-red-4: rgba(231, 63, 22, 0.4);
+  --default-red-5: rgba(231, 63, 22, 0.5);
+  --default-red-7: rgba(231, 63, 22, 0.7);
+
+  --default-yellow-25: #fdb71376;
+  --default-yellow: #fdb713;
+
+  --default-label: #f5f5f5;
+
+  /* dark */
+  --dark-black: #181716;
+  --dark-white: #f5f5f5;
+  --dark-bg: var(--dark-black);
+  --dark-text: var(--dark-white);
+  --dark-gray: #4a4a4a;
+
+  --dark-dark-blue: #1e2f45;
+  --dark-dark-blue-5: rgba(30, 47, 69, 0.5);
+  --dark-dark-blue-05: rgba(30, 47, 69, 0.15);
+
+  --dark-dark-blue-25: rgba(30, 47, 69, 0.25);
+  --dark-dark-blue-7: rgba(30, 47, 69, 0.7);
+
+  --dark-blue: #3887c0;
+  --dark-blue-5: rgba(56, 135, 192, 0.5);
+  --dark-blue-25: rgba(56, 135, 192, 0.25);
+
+  --dark-light-blue: #3a506b;
+  --dark-light-blue-5: rgba(58, 80, 107, 0.5);
+  --dark-light-blue-25: rgba(58, 80, 107, 0.25);
+
+  --dark-green: #2e8b74;
+  --dark-green-5: rgba(46, 139, 116, 0.5);
+  --dark-green-25: rgba(46, 139, 116, 0.25);
+  --dark-green-7: rgba(46, 139, 116, 0.7);
+
+  --dark-red: #c14a33;
+  --dark-red-4: rgba(193, 74, 51, 0.4);
+  --dark-red-5: rgba(193, 74, 51, 0.5);
+  --dark-red-7: rgba(193, 74, 51, 0.7);
+
+  --dark-yellow-25: rgba(253, 183, 19, 0.4);
+  --dark-yellow: #e6a10d;
+
+  --dark-label: #303030;
+
+}
+
+::selection {
+  background-color: var(--blue);
+  color: var(--white);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--white);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 50rem;
+  background: var(--blue);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100dvh;
+  color: var(--text);
+  background: var(--bg);
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+  line-height: 1.6;
+  font-family: var(--calibri);
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  padding: clamp(1rem, 2vw, 2rem);
+  width: min(100%, 100rem);
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+@media screen and (width > 46rem) {
+  main {
+    min-height: 77vh;
+  }
+}
+
+button {
+  font-family: var(--source-sans-pro);
+  font-weight: 900;
+}

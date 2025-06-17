@@ -1,0 +1,29 @@
+.editimmo {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+
+  a {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    max-width: 90%;
+    margin: 1rem;
+    padding: 1rem;
+    border: none;
+    border-radius: 0.2rem;
+    background-color: var(--accent);
+    box-shadow: 2px 2px var(--primary);
+    color: var(--bg);
+    font-size: 1.5rem;
+    cursor: pointer;
+    gap: 0.5rem;
+
+    &:hover {
+      box-shadow: -2px -2px var(--primary);
+    }
+  }
+
+}

@@ -1,0 +1,68 @@
+.filters {
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  justify-content: center;
+  width: 25%;
+  min-width: 20%;
+  margin: 2rem;
+  padding: 0.5rem;
+  border: 1px solid var(--accent);
+  border-radius: 2%;
+  background-color: var(--light);
+  box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+
+  svg {
+    height: 2rem;
+  }
+
+  .filtersexpanded {
+    display: none;
+  }
+
+  div h1 {
+    font-size: 1.25em;
+  }
+
+  div {
+    gap: 0.25em;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border-radius: 10%;
+  }
+
+  .filterscontainer {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+
+    .filter {
+      justify-self: left;
+      margin: 0.1rem;
+      padding: 0.1rem 0.25rem;
+      border-radius: 5%;
+      background-color: var(--light);
+
+      p {
+        margin: 0;
+        color: var(--primary);
+        font-size: 1.2rem;
+      }
+    }
+  }
+}
+
+@media (width <= 460px) {
+  .filters {
+    width: 30%;
+  }
+}
+
+@media (width <= 400px) {
+  .filters {
+    width: 37%;
+  }
+}

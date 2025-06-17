@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="../img/dyn8.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="../css/style.scss">
+    <link rel="stylesheet" href="../css/normalize.scss">
+    <link rel="stylesheet" href="../css/common.scss">
+    <script type="module" src="../scripts/main.ts"></script>
+    <script type="module" src="../scripts/imageHandler.ts"></script>
+    <script type="module" src="../immo/immo.ts"></script>
+
+    <title>Dynasty 8 add listing form page</title>
+</head>
+
+<body>
+
+<header>
+    <div class="container">
+        <a href=".."><img src="../img/logo.png" alt="dynasty 8 logo"></a>
+        <button aria-expanded="false" class="hamburger" id="menu">
+            <span>Menu</span>
+            <span aria-hidden="true" class="icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+        </button>
+        <nav>
+            <ul>
+                <!-- deze hrefs staan nog niet juist, dit zal nog veranderd moeten worden naargelelang we de router hebben -->
+                <li><a href="/search/">Zoeken</a></li>
+                <li id="wishlistLink"><a href="/wishlist/">Mijn verlanglijstje</a></li>
+                <li><a href="/immo/">Immo's</a></li>
+                <li id="immoEditLink"><a href="/editimmo/">Immo beheren</a></li>
+                <li id="loginLink"><a href="/login/" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 20 20">
+                        <path fill="currentColor"
+                              d="M10 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8m-4.991 9A2.001 2.001 0 0 0 3 13c0 1.691.833 2.966 2.135 3.797C6.417 17.614 8.145 18 10 18c1.855 0 3.583-.386 4.865-1.203C16.167 15.967 17 14.69 17 13a2 2 0 0 0-2-2z"/>
+                    </svg>
+                    Aanmelden</a>
+                </li>
+                <li id="logoutLink"><a href="/logout/" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 20 20">
+                        <path fill="currentColor"
+                              d="M10 2a4 4 0 1 0 0 8a4 4 0 0 0 0-8m-4.991 9A2.001 2.001 0 0 0 3 13c0 1.691.833 2.966 2.135 3.797C6.417 17.614 8.145 18 10 18c1.855 0 3.583-.386 4.865-1.203C16.167 15.967 17 14.69 17 13a2 2 0 0 0-2-2z"/>
+                    </svg>
+                    Uitloggen</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="container">
+        <h1>Kies welk soort zoekertje je online wilt zetten</h1>
+    </div>
+
+
+    <div id="card-container">
+        <div class="cards">
+            <div class="optioncard" id="housecard">
+                <img src="../img/transhouse.png" alt="housecard">
+                <h2>Huis/appartement</h2>
+            </div>
+            <div class="optioncard" id="landcard">
+                <img src="../img/transplot.png" alt="plotcard">
+                <h2>Land</h2>
+            </div>
+        </div>
+    </div>
+    <div class="form-wrapper">
+        <div class="styled-form" id="propertyformwrapper">
+            <form class="propertyform" method="post" id="propertyForm" enctype="multipart/form-data">
+                <div class="container">
+
+
+                    <div class="form-section">
+                        <label>Kies een manier van prijs invoeren</label>
+                        <label class="spacer" for="propertyprice"> Prijs (in €)</label>
+                        <input type="text" id="propertyprice" name="price">
+                        <h2 id="of">OF</h2>
+                        <label for="price-on-request">Prijs op aanvraag <input type="checkbox"
+                                                                               id="price-on-request"></label>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="spacer">Te koop of te huur?</label>
+                        <div class="styled-radiobtn">
+                            <label for="sale">Te koop</label>
+                            <input type="radio" id="sale" name="saleRent" value="sale">
+                        </div>
+                        <div class="styled-radiobtn">
+                            <label for="rent">Te huur</label>
+                            <input type="radio" id="rent" name="saleRent" value="rent">
+                        </div>
+                    </div>
+
+                    <div class="form-section spacer">
+                        <label>Type zoekertje</label>
+                        <div class="styled-radiobtn">
+                            <label for="house">Huis</label>
+                            <input type="radio" id="house" name="propertytype" value="house">
+                        </div>
+                        <div class="styled-radiobtn">
+                            <label for="appartement">Appartement</label>
+                            <input type="radio" id="appartement" name="propertytype" value="appartement">
+                        </div>
+                    </div>
+
+                    <div class="form-section spacer">
+                        <label for="livingarea">Bewoonbare oppervlakte (m²)</label>
+                        <input type="text" id="livingarea" name="livingarea">
+                    </div>
+
+                    <div class="form-section">
+                        <label for="buildingarea">Bouwgrond (m²)</label>
+                        <input type="text" id="buildingarea" name="buildingarea">
+                    </div>
+                    <div class="form-section">
+                        <label for="gardenarea">Tuinoppervlakte (m²)</label>
+                        <input type="text" id="gardenarea" name="gardenarea">
+                    </div>
+
+                    <div class="form-section">
+                        <label for="bedrooms">Aantal slaapkamers</label>
+                        <input type="number" id="bedrooms" min="0" name="bedrooms">
+                    </div>
+                    <div class="form-section">
+                        <label for="bathrooms">Aantal badkamers</label>
+                        <input type="number" id="bathrooms" min="0" name="bathrooms">
+                    </div>
+
+                    <div class="form-section">
+                        <div class="tooltip">
+                            <label for="buildingyear">Bouwjaar</label>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none"
+                                 viewBox="0 0 14 14">
+                                <path fill="#000"
+                                      d="M6 10h1.333V6H6v4Zm.667-5.333a.646.646 0 0 0 .475-.192A.642.642 0 0 0 7.333 4a.643.643 0 0 0-.192-.475.648.648 0 0 0-.474-.192.643.643 0 0 0-.475.192A.648.648 0 0 0 6 4c0 .189.064.347.192.475a.643.643 0 0 0 .475.192Zm0 8.666a6.488 6.488 0 0 1-2.6-.525 6.742 6.742 0 0 1-2.117-1.425A6.727 6.727 0 0 1 .525 9.267 6.503 6.503 0 0 1 0 6.667c0-.923.175-1.79.525-2.6A6.743 6.743 0 0 1 1.95 1.95c.6-.6 1.306-1.075 2.117-1.425A6.503 6.503 0 0 1 6.667 0c.922 0 1.789.175 2.6.525.81.35 1.516.825 2.116 1.425.6.6 1.075 1.306 1.426 2.117a6.48 6.48 0 0 1 .524 2.6c0 .922-.175 1.789-.525 2.6a6.741 6.741 0 0 1-1.425 2.116 6.75 6.75 0 0 1-2.116 1.426 6.48 6.48 0 0 1-2.6.524Zm0-1.333c1.489 0 2.75-.517 3.783-1.55S12 8.156 12 6.667c0-1.49-.517-2.75-1.55-3.784-1.033-1.033-2.294-1.55-3.783-1.55-1.49 0-2.75.517-3.784 1.55-1.033 1.034-1.55 2.295-1.55 3.784 0 1.489.517 2.75 1.55 3.783C3.917 11.483 5.178 12 6.667 12Z"/>
+                            </svg>
+
+                            <span class="tooltiptext">Geef het jaartal in met het formaat YYYY. Voorbeeld: 1989</span>
+                        </div>
+
+                        <input type="text" id="buildingyear" name="year">
+                    </div>
+                    <div class="form-section">
+                        <label for="propertycity">Gemeente of stad</label>
+                        <input type="text" id="propertycity" name="city">
+                    </div>
+                    <div class="form-section">
+                        <label for="propertyZIP">Postcode</label>
+                        <input type="text" id="propertyZIP" name="zip">
+                    </div>
+                    <div class="form-section">
+                        <label for="propertystreetname">Straatnaam</label>
+                        <input type="text" id="propertystreetname" name="streetname">
+                    </div>
+                    <div class="form-section">
+                        <label for="propertyhousenumber">Huisnummer</label>
+                        <input type="text" id="propertyhousenumber" name="housenumber">
+                    </div>
+                    <div class="form-section">
+                        <label for="propertybus">Bus</label>
+                        <input type="text" id="propertybus" name="bus">
+                    </div>
+                    <div class="form-section">
+                        <label for="epc">EPC waarde</label>
+                        <select id="epc" name="epc">
+                            <option value="X">Onbekend</option>
+                            <option value="A+">A+</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                        </select>
+                    </div>
+                    <div class="form-section">
+                        <label for="description">Beschrijving</label>
+                        <input type="text" id="description" name="description">
+                    </div>
+                    <div class="form-section">
+                        <label for="propertythumbnail">Thumbnail</label>
+                        <input type="file" id="propertythumbnail" class="propertythumbnail" name="thumbnailImg"
+                               accept="image/jpeg, image/png, image/jpg">
+                        <output id="propertythumbnailresult"></output>
+                    </div>
+                    <div class="form-section">
+                        <label for="propertyimgs">Afbeeldingen</label>
+                        <input name="imgs" type="file" multiple="multiple" id="propertyimgs" class="imguploads"
+                               accept="image/jpeg, image/png, image/jpg">
+                        <output id="propertyimgsresult"></output>
+                    </div>
+                    <div class="form-section">
+                        <label for="has-garage">Heeft garage <input type="checkbox" id="has-garage"></label>
+                        <label for="garage-size" style="display: none">Garage plekken</label>
+                        <input type="number" id="garage-size" min="0" name="garageSize" style="display: none">
+                    </div>
+                    <input type="submit" value="plaats zoekertje">
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="form-wrapper">
+    <div class="styled-form" id="landformwrapper">
+
+        <form class="landform" method="post" id="landForm" enctype="multipart/form-data">
+            <div class="container">
+
+                <div class="form-section">
+                    <label for="landprice">Prijs (in €)</label>
+                    <input type="text" id="landprice" name="price">
+                </div>
+
+                <div class="form-section">
+                    <label for="area">Oppervlakte (m²)</label>
+                    <input type="text" id="area" name="landarea">
+                </div>
+
+                <div class="form-section">
+                    <label>Type grond</label>
+                    <div class="styled-radiobtn">
+                        <label for="buildlandradio">Bouwgrond</label>
+                        <input type="radio" id="buildlandradio" name="type" value="buildland">
+                    </div>
+                    <div class="styled-radiobtn">
+                        <label for="farmlandradio">Landbouwgrond</label>
+                        <input type="radio" id="farmlandradio" name="type" value="farmland">
+                    </div>
+                </div>
+
+                <div class="form-section spacer">
+                    <label>Type zoekertje</label>
+                    <div class="styled-radiobtn">
+                        <label for="saleLand">Te koop</label>
+                        <input type="radio" id="saleLand" name="saleRent" value="sale">
+                    </div>
+                    <div class="styled-radiobtn">
+                        <label for="rentLand">Te huur</label>
+                        <input type="radio" id="rentLand" name="saleRent" value="rent">
+                    </div>
+                </div>
+
+                <div class="form-section spacer">
+                    <label for="city">Gemeente of stad</label>
+                    <input type="text" id="city" name="city">
+                </div>
+
+                <div class="form-section">
+                    <label for="zip">Postcode</label>
+                    <input type="text" id="zip" name="zip">
+                </div>
+
+                <div class="form-section">
+                    <label for="streetname">Straatnaam</label>
+                    <input type="text" id="streetname" name="streetname">
+                </div>
+
+                <div class="form-section">
+                    <label for="housenumber">Huisnummer</label>
+                    <input type="text" id="housenumber" name="housenumber">
+                </div>
+
+                <div class="form-section">
+                    <label for="bus">Bus</label>
+                    <input type="text" id="bus" name="bus">
+                </div>
+
+                <div class="form-section">
+                    <label for="landdescription">Beschrijving</label>
+                    <input type="text" id="landdescription" name="description">
+                </div>
+
+                <div class="form-section">
+                    <label for="landthumbnail">Thumbnail</label>
+                    <input type="file" id="landthumbnail" name="landimg" class="landthumbnail">
+                    <output id="landthumbnailresult"></output>
+                </div>
+
+                <div class="form-section">
+                    <label for="landimgs">Afbeeldingen</label>
+                    <input type="file" id="landimgs" name="landimg" class="landimgs" multiple="multiple">
+                    <output id="landimgsresult"></output>
+                </div>
+
+                <input type="submit" value="Plaats zoekertje">
+            </div>
+        </form>
+
+    </div>
+    </div>
+
+</main>
+
+<footer>
+    <div class="container">
+        <img src="../img/logo.png" alt="dynasty 8 logo">
+    </div>
+</footer>
+</body>
+</html>

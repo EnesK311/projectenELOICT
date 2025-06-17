@@ -1,0 +1,6 @@
+@FacilityConnect_HostAddress = https://myapp-271540053456.europe-west1.run.app/
+
+GET {{FacilityConnect_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

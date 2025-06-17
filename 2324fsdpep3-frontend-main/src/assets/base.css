@@ -1,0 +1,81 @@
+/* importing the font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Herr+Von+Muellerhoff&family=Rock+Salt&display=swap');
+/* Color Palette */
+:root {
+  /* Primary Colors */
+  --color-primary-green: #3e7c59;
+  --color-primary-cards: #dedede;
+
+  /* Secondary Colors */
+  --color-background-dark: #1b1b1b;
+  --color-background-soft-dark: #282828;
+  --color-card-green: #475d4b;
+  --color-card-brown: #7b1313;
+
+  /* Accent Colors */
+  --color-accent-yellow: #d4a441;
+  --color-accent-red: #a94442;
+  --color-accent-white: #f2f2f2;
+
+  /* General Text Colors */
+  --color-text-primary: #f2f2f2;
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+
+  /* Borders */
+  --color-border-light: #ccc;
+  --color-border-hover: #c8c8c8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--color-background-dark);
+    --color-background-soft: var(--color-background-soft-dark);
+
+    --color-card-background-success: var(--color-card-green);
+    --color-card-background-warning: var(--color-card-brown);
+    --color-card-background-error: var(--color-accent-red);
+
+    --color-heading: var(--color-text-primary);
+    --color-text: var(--color-text-secondary);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-background: var(--color-background-dark);
+    --color-background-soft: var(--color-background-soft-dark);
+
+    --color-card-background-success: var(--color-card-green);
+    --color-card-background-warning: var(--color-card-brown);
+    --color-card-background-error: var(--color-accent-red);
+
+    --color-heading: var(--color-text-primary);
+    --color-text: var(--color-text-secondary);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  line-height: 1.6;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

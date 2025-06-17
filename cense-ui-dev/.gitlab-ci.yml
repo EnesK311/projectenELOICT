@@ -1,0 +1,237 @@
+image: google/cloud-sdk:latest
+
+stages:
+  - test
+  - build
+  - push-image
+  - deploy
+  - security
+
+variables:
+  GCP_CREDENTIALS_FILE: /root/gcloud-service-key.json
+  DOCKER_HOST: 'tcp://docker:2375' # Use HTTP (no TLS)
+  CLOUD_RUN_SERVICE_URL: 'facilityconnect'
+
+services:
+  - name: docker:20.10.7-dind
+    alias: docker
+    command: ['--host=tcp://0.0.0.0:2375', '--host=unix:///var/run/docker.sock'] # Expose Docker daemon on HTTP
+
+cache:
+  key:
+    files:
+      - pnpm-lock.yaml
+  paths:
+    - node_modules/
+    - .pnpm-store
+
+before_script:
+  - apt-get update && apt-get install -y nodejs npm
+  - npm install -g pnpm && export PATH="$(npm bin -g):$PATH"
+  - pnpm --version
+  # Decode the base64-encoded service account key file and write it to the expected location
+  - echo "$GOOGLE_CLOUD_KEYFILE" | base64 -d > /root/gcloud-service-key.json
+  - gcloud auth activate-service-account --key-file=/root/gcloud-service-key.json # Authenticate with Google Cloud
+  - gcloud config set project "$GOOGLE_CLOUD_PROJECT" # Set Google Cloud project
+
+  # Authenticate Docker with Google Container Registry
+  - gcloud auth configure-docker --quiet # Configure Docker to use Google Cloud credentials for GCR
+
+lint:
+  stage: test
+  script:
+    - pnpm install
+    - pnpm lint
+    - pnpm type-check
+  only:
+    - dev
+    - staging
+
+test:
+  stage: test
+  script:
+    - pnpm install
+    - pnpm test
+    - pnpm coverage
+  artifacts:
+    paths:
+      - coverage/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+  coverage: '/Statements\s*:\s*([\d\.]+)%/'
+  only:
+    - dev
+    - staging
+
+build Vue dev:
+  stage: build
+  image: node:20-alpine
+  before_script:
+    - echo "Building front-end..."
+    - npm install -g pnpm && export PATH="$(npm bin -g):$PATH"
+    - pnpm install
+    - cp ${DEV_ENV_FILE} .env
+    - cp ${PRODUCTION_HTACCESS_FILE} .htaccess
+    - chmod 644 ./.htaccess # Correct permissions for .htaccess
+  script:
+    - pnpm run build
+    - mv -T dist "dist-build"
+  artifacts:
+    name: 'dist-build'
+    paths:
+      - dist-build/
+  only:
+    - dev
+
+build Vue staging:
+  stage: build
+  image: node:20-alpine
+  before_script:
+    - echo "Building front-end..."
+    - npm install -g pnpm && export PATH="$(npm bin -g):$PATH"
+    - pnpm install
+    - cp ${STAGING_ENV_FILE} .env
+    - cp ${PRODUCTION_HTACCESS_FILE} .htaccess
+    - chmod 644 ./.htaccess # Correct permissions for .htaccess
+  script:
+    - pnpm run build
+    - mv -T dist "dist-build"
+  artifacts:
+    name: 'dist-build'
+    paths:
+      - dist-build/
+  only:
+    - staging
+
+build Vue production:
+  stage: build
+  image: node:20-alpine
+  before_script:
+    - echo "Building front-end..."
+    - npm install -g pnpm && export PATH="$(npm bin -g):$PATH"
+    - pnpm install
+    - cp ${PROD_ENV_FILE} .env
+    - cp ${PRODUCTION_HTACCESS_FILE} .htaccess
+    - chmod 644 ./.htaccess # Correct permissions for .htaccess
+    - ls -la
+  script:
+    - pnpm run build
+    - mv -T dist "dist-build"
+  artifacts:
+    name: 'dist-build'
+    paths:
+      - dist-build/
+  only:
+    - production
+
+# Deploy to Cloud Run for Development
+deploy_dev:
+  stage: deploy
+  environment:
+    name: dev
+    url: https://$CLOUD_RUN_SERVICE_URL-dev
+  before_script:
+    - mkdir -p /root/.gcp
+    - echo "$GOOGLE_CLOUD_KEYFILE" | base64 -d > "$GCP_CREDENTIALS_FILE"
+    - gcloud auth activate-service-account --key-file="$GCP_CREDENTIALS_FILE"
+    - gcloud config set project "$GOOGLE_CLOUD_PROJECT"
+    - gcloud auth configure-docker --quiet
+  script:
+    - docker info # Ensures Docker service is running properly
+    - echo "Building Docker image for dev..."
+    - docker build -t gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-dev:$CI_COMMIT_SHA .
+    - docker push gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-dev:$CI_COMMIT_SHA
+    - gcloud run deploy "$CLOUD_RUN_SERVICE_NAME-dev" --image "gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-dev:$CI_COMMIT_SHA" --region "$GOOGLE_CLOUD_REGION" --platform managed --allow-unauthenticated
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+
+# Deploy to Cloud Run for Staging
+deploy_staging:
+  stage: deploy
+  environment:
+    name: staging
+    url: https://$CLOUD_RUN_SERVICE_URL-staging
+  before_script:
+    - mkdir -p /root/.gcp
+    - echo "$GOOGLE_CLOUD_KEYFILE" | base64 -d > "$GCP_CREDENTIALS_FILE"
+    - gcloud auth activate-service-account --key-file="$GCP_CREDENTIALS_FILE"
+    - gcloud config set project "$GOOGLE_CLOUD_PROJECT"
+    - gcloud auth configure-docker --quiet
+  script:
+    - docker info # Ensures Docker service is running properly
+    - echo "Building Docker image for staging..."
+    - docker build -t gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-staging:$CI_COMMIT_SHA .
+    - docker push gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-staging:$CI_COMMIT_SHA
+    - gcloud run deploy "$CLOUD_RUN_SERVICE_NAME-staging" --image "gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-staging:$CI_COMMIT_SHA" --region "$GOOGLE_CLOUD_REGION" --platform managed --allow-unauthenticated
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "staging"'
+
+# Deploy to Cloud Run for Production
+deploy_prod:
+  stage: deploy
+  environment:
+    name: production
+    url: https://$CLOUD_RUN_SERVICE_URL-prod
+  before_script:
+    - mkdir -p /root/.gcp
+    - echo "$GOOGLE_CLOUD_KEYFILE" | base64 -d > "$GCP_CREDENTIALS_FILE"
+    - gcloud auth activate-service-account --key-file="$GCP_CREDENTIALS_FILE"
+    - gcloud config set project "$GOOGLE_CLOUD_PROJECT"
+    - gcloud auth configure-docker --quiet
+  script:
+    - docker info # Ensures Docker service is running properly
+    - echo "Building Docker image for production..."
+    - docker build -t gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-prod:$CI_COMMIT_SHA .
+    - docker push gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-prod:$CI_COMMIT_SHA
+    - gcloud run deploy "$CLOUD_RUN_SERVICE_NAME-prod" --image "gcr.io/$GOOGLE_CLOUD_PROJECT/$CLOUD_RUN_SERVICE_NAME-prod:$CI_COMMIT_SHA" --region "$GOOGLE_CLOUD_REGION" --platform managed --allow-unauthenticated
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "production"'
+
+sast:
+  stage: security
+  image: node:18 # Use node:18 or later for compatibility with eslint
+  before_script:
+    - npm install -g eslint eslint-plugin-security
+  script:
+    # Run eslint on .js and .vue files in the source directory
+    - eslint "src/**/*.{js,vue}"
+  only:
+    - dev
+    - staging
+
+container checking:
+  stage: security
+  image: google/cloud-sdk:latest
+  before_script:
+    # Authenticate with Google Cloud
+    - echo "$GOOGLE_CLOUD_KEYFILE" | base64 -d > "$GCP_CREDENTIALS_FILE"
+    - gcloud auth activate-service-account --key-file="$GCP_CREDENTIALS_FILE"
+    - gcloud config set project "$GOOGLE_CLOUD_PROJECT"
+    - gcloud auth configure-docker gcr.io # Authenticate Docker with GCR
+    - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.18.1
+
+  script:
+    # Scan the image for vulnerabilities
+    - trivy image --no-progress --severity HIGH,CRITICAL gcr.io/$GOOGLE_CLOUD_PROJECT/facilityconnect-dev:$CI_COMMIT_SHA
+
+  allow_failure: true
+  only:
+    - dev
+    - staging
+
+# DAST Job
+dast:
+  stage: security
+  image: registry.gitlab.com/gitlab-org/security-products/dast:latest
+  before_script: []
+  script:
+    - /analyze
+  variables:
+    DAST_WEBSITE: 'https://facilityconnect-dev-271540053456.europe-west1.run.app/'
+  only:
+    - dev
+    - staging

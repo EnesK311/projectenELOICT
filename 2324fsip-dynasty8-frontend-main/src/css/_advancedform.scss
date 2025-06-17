@@ -1,0 +1,143 @@
+.advanced-form {
+  margin: 2rem;
+  border-radius: 0.5rem;
+  outline: 2px solid var(--accent);
+
+  form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    input,
+    select {
+      max-width: 80%;
+      margin: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      background-color: var(--bg);
+      color: var(--primary);
+      font-size: 1.5rem;
+    }
+
+    h2{
+      text-align: center;
+    }
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 2rem;
+    padding: 0.2rem;
+  }
+
+  .page-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 2rem;
+    border-bottom: solid 1px var(--accent);
+
+    input {
+      margin-bottom: 2rem;
+    }
+
+    select {
+      margin-bottom: 2rem;
+    }
+
+  }
+
+  .title {
+    font-size: 1.75rem;
+    font-weight: bold;
+
+    h1 {
+      font-size: 2rem;
+    }
+    }
+  
+
+  label {
+    font-size: 1.5rem;
+  }
+
+  .headers {
+    display: flex;
+    flex-flow: row;
+    place-content: start;
+
+    label {
+      padding: 1rem 1rem 2rem;
+    }
+
+  }
+
+
+
+  p {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    text-align: center;
+
+    a {
+      padding: 0.5rem 1rem;
+      border-radius: 0.2rem;
+      background-color: var(--accent);
+      color: var(--bg);
+      text-decoration: none;
+    }
+  }
+
+  button {
+    height: 100%;
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.2rem;
+    background-color: var(--accent);
+    box-shadow: 2px 2px var(--primary);
+    color: var(--bg);
+    font-size: 1.5rem;
+    cursor: pointer;
+    gap: 0.5rem;
+
+    &.search{
+      box-shadow: 2px 2px var(--accent);
+    }
+
+    &:hover {
+      box-shadow: -2px -2px var(--primary);
+    }
+
+    &.search:hover {
+      box-shadow: -2px -2px var(--accent);
+
+    }
+  }
+
+  .search {
+    display: flex;
+    justify-content: center;
+    border-radius: 0.2rem;
+    outline: none;
+    background-color: var(--light);
+    color: var(--accent);
+
+  }
+
+  #result {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+  }
+
+  .thumbnail {
+    height: 192px;
+  }
+
+  .form-section {
+    display: flex;
+    flex-direction: column;
+  }
+}

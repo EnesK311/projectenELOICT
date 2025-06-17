@@ -1,0 +1,59 @@
+image: node:20
+
+variables:
+  FOLDER_NAME: '/'
+
+stages:
+  - lint
+  - deploy
+
+cache:
+  key:
+    files:
+      - pnpm-lock.yaml
+  paths:
+    - node_modules/
+    - .pnpm-store
+
+before_script:
+  # enable pnpm
+  - corepack enable
+  - corepack prepare pnpm@latest-8 --activate
+  - pnpm config set store-dir .pnpm-store
+  # install dependencies
+  - pnpm install
+
+lint:
+  stage: lint
+  script:
+    - pnpm lint
+    - pnpm lint --fix
+
+plesk:
+  stage: deploy
+  script:
+    # !! ADD PLESK_DIRECTORY variable ( e.g. 'vue.voornaamnaam.ikdoeict.be/labo1/')
+    # !! ADD SSH_USERNAME variable ( e.g. 'bart.delrue')
+    # !! ADD SSH_PRIVATE_KEY variable ( e.g. ...nice try)
+
+    # EXTRA TASK TO ADD: clear destination content first
+    # CAREFUL! do NOT accidentally clear your entire webspace!
+
+    ## this script copies the ssh key to the Gitlab Runner
+    ## documentation: https://docs.gitlab.com/ee/ci/ssh_keys/
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+
+    - pnpm build
+    # addd host
+    - ssh-keyscan -H cloudplesk.ikdoeict.be >> ~/.ssh/known_hosts
+
+    # clear destination
+    - ssh -o StrictHostKeyChecking=no $SSH_USERNAME@cloudplesk.ikdoeict.be "rm -rf $PLESK_DIRECTORY/*"
+
+    # scp command to copy the dist folder to the webserver
+    - scp -o StrictHostKeyChecking=no -r dist/* $SSH_USERNAME@cloudplesk.ikdoeict.be:$PLESK_DIRECTORY

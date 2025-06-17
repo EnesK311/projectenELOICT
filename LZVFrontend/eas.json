@@ -1,0 +1,33 @@
+{
+  "cli": {
+    "version": ">= 14.4.1",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_KEY_ONLINE_EVENTS": "a4b48e06a81a95d198bc",
+        "EXPO_PUBLIC_API_BASE_URL": "https://lzv.eneskahya.ikdoeict.be/api",
+        "EXPO_PUBLIC_API_PICTURES_BASE_URL": "https://lzv.eneskahya.ikdoeict.be"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_KEY_ONLINE_EVENTS": "a4b48e06a81a95d198bc",
+        "EXPO_PUBLIC_API_BASE_URL": "https://lzv.eneskahya.ikdoeict.be/api",
+        "EXPO_PUBLIC_API_PICTURES_BASE_URL": "https://lzv.eneskahya.ikdoeict.be"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

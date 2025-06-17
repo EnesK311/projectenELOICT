@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap');
+
+/*:root {
+    --default-text-dark: #F8F8F8;
+    --default-text-light: #141414;
+    --accent: #1F56A8;
+    --accent-light: #2769cc;
+    --accent-dark: rgb(11, 48, 104);
+    --main-bg-dark: #1A1A1B;
+    --bg2-dark: #242424;
+    --light-gray: #D9D9D9;
+    --dark-gray: #4C4F4F;
+    --selected: #00B628;
+}*/
+
+.dark:root {
+    --default-text-dark: #F8F8F8;
+    --default-text-light: #141414;
+    --accent: #0a5bd4;
+    --accent-light: #2769cc;
+    --accent-dark: rgb(11, 48, 104);
+    --main-bg-dark: #1A1A1B;
+    --bg2-dark: #242424;
+    --light-gray: #D9D9D9;
+    --dark-gray: #4C4F4F;
+    --selected: #00B628;
+    --btn-color:#F8F8F8;
+    --btn-hover: #6e6e6e;
+}
+
+:root:not(.dark) {
+    --default-text-dark: #474747;
+    --default-text-light: #F8F8F8;
+    --accent: #0a5bd4;
+    --accent-light: #1c54a8;
+    --accent-dark: rgb(11, 48, 104);
+
+    --main-bg-dark: #fafafa;
+    --bg2-dark: #ebebeb;
+
+    --light-gray: #adadad;
+    --dark-gray: #c4c4c4;
+    --selected: #00B628;
+    --btn-color:#F8F8F8;
+    --btn-hover: #9b9b9b;
+}
+
+html {
+    font-family: "Libre Franklin", sans-serif;
+    font-optical-sizing: auto;
+    background-color: var(--main-bg-dark);
+}
+
+table {
+    border-spacing: 0;
+}
+
+body {
+    margin: 0;
+}
+
+h1, h2, h3, p {
+    margin: 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#logo {
+    color: var(--default-text-dark);
+    text-decoration: none;
+}
+
+header {
+    border-bottom: 3px solid var(--bg2-dark);
+    padding: 0 1rem;
+}

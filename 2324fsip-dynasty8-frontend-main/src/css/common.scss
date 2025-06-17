@@ -1,0 +1,48 @@
+html {
+   font-size: 62.5%;
+}
+
+body {
+   margin: 0;
+}
+
+*, *::before, *::after {
+   box-sizing: border-box;
+}
+
+.container {
+   max-width: 1920px;
+   margin: 0 auto;
+   padding: 0 1rem;
+}
+
+
+
+/* ===========================================
+   Helpers
+   =========================================== */
+
+.structural {
+   position: absolute;
+   left: -9999px;
+}
+
+.clearfix::after {
+   content: "";
+   display: table;
+   clear: both;
+}
+
+.ir {
+   display: block;
+   overflow: hidden;
+   background-size: 100%; 
+   text-indent: 150%;
+   white-space: nowrap;
+}
+
+.hidden {
+   visibility: hidden !important;
+   position: absolute !important;
+   z-index: -1 !important;
+}
